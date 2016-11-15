@@ -22,7 +22,6 @@ public class HermiteSpline : MonoBehaviour
     // Use this for initialization
     private void Awake()
     {
-        RefreshSplinePoints();
         _lineRenderer = gameObject.GetComponent<LineRenderer>();
     }
 
@@ -90,7 +89,7 @@ public class HermiteSpline : MonoBehaviour
             if (i == 0)
                 tmp.position = new Vector3(0, UnityEngine.Random.Range(-5.0f, 5.0f), 0);
             else
-                tmp.position = new Vector3(splineControlPoints[i - 1].position.x + UnityEngine.Random.Range(0.5f, 5.0f), UnityEngine.Random.Range(-5.0f, 5.0f), 0);
+                tmp.position = new Vector3(splineControlPoints[i - 1].position.x + UnityEngine.Random.Range(2.5f, 8.0f), UnityEngine.Random.Range(-5.0f, 5.0f), 0);
 
             tmp.tangent = tmp.position;
 
@@ -98,7 +97,7 @@ public class HermiteSpline : MonoBehaviour
         }
 
         HermiteSplineControlPoint tmpEnd = new HermiteSplineControlPoint();
-        tmpEnd.position = new Vector3(splineControlPoints[splineControlPoints.Count - 1].position.x + UnityEngine.Random.Range(0.5f, 5.0f), 
+        tmpEnd.position = new Vector3(splineControlPoints[splineControlPoints.Count - 1].position.x + UnityEngine.Random.Range(2.5f, 8.0f), 
             UnityEngine.Random.Range(-5.0f, 5.0f), 0);
         tmpEnd.tangent = tmpEnd.position;
 
