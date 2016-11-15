@@ -10,13 +10,20 @@ public class HermiteSplineEditor : Editor
 
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
-        if(GUILayout.Button("Add Control Point", GUILayout.Width(150)))
+        if(GUILayout.Button("Add CP", GUILayout.Width(100)))
         {
             var hSpline = (HermiteSpline)target;
             hSpline.AddControlPoint();
 
             EditorUtility.SetDirty(hSpline);
 
+        }
+        if (GUILayout.Button("Remove CP", GUILayout.Width(100)))
+        {
+            var hSpline = (HermiteSpline)target;
+            hSpline.RemoveControlPoint();
+
+            EditorUtility.SetDirty(hSpline);
         }
         if (GUILayout.Button("Refresh Spline", GUILayout.Width(100)))
         {
@@ -32,7 +39,7 @@ public class HermiteSplineEditor : Editor
     private void OnSceneGUI()
     {
         var hSpline = (HermiteSpline)target;
-
+        
         for(int i = 0; i < hSpline.splineControlPoints.Count; ++i)
         {
             HermiteSplineControlPoint hcp = hSpline.splineControlPoints[i];

@@ -2,15 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public struct HermiteSplineParameters
-{
-    public Vector3 StartPoint;//p0
-    public Vector3 StartControlPoint; //p1
-    public Vector3 EndPoint; //p3
-    public Vector3 EndControlPoint; //p2
-}
-
 [Serializable]
 public struct HermiteSplineControlPoint
 {
@@ -20,22 +11,29 @@ public struct HermiteSplineControlPoint
 
 public class HermiteSpline : MonoBehaviour
 {
-    public HermiteSplineParameters Parameters;
     public int InterpolationSteps = 5;
+    public Color Color;
 
     [SerializeField]
     public List<HermiteSplineControlPoint> splineControlPoints = new List<HermiteSplineControlPoint>();
     private List<Vector3> _splinePoints = new List<Vector3>();
+    private LineRenderer _lineRenderer;
 
     // Use this for initialization
-    private void Start()
+    private void Awake()
     {
         RefreshSplinePoints();
+        _lineRenderer = gameObject.GetComponent<LineRenderer>();
     }
 
-    // Update is called once per frame
-    private void Update()
+    public void Update()
     {
+        if (!_lineRenderer)
+            return;
+
+        RefreshSplinePoints();
+        _lineRenderer.SetVertexCount(_splinePoints.Count);
+        _lineRenderer.SetPositions(_splinePoints.ToArray());
     }
 
     public Vector3 CalculateSplinePoint(float t, HermiteSplineControlPoint p0, HermiteSplineControlPoint p1)
@@ -50,15 +48,23 @@ public class HermiteSpline : MonoBehaviour
 
     public void AddControlPoint()
     {
-        HermiteSplineControlPoint hcp = new HermiteSplineControlPoint();
-        hcp.position = splineControlPoints[splineControlPoints.Count - 1].position + Vector3.right * 10.0f;
-        hcp.tangent = hcp.position + Vector3.up * 4.0f;
+        var hcp = new HermiteSplineControlPoint();
+        if(splineControlPoints.Count == 0)
+            hcp.position = Vector3.zero;
+        else
+            hcp.position = splineControlPoints[splineControlPoints.Count - 1].position + Vector3.right * 3.0f;
+
+        hcp.tangent = hcp.position + Vector3.right;
         splineControlPoints.Add(hcp);
+    }
+
+    public void RemoveControlPoint()
+    {
+        splineControlPoints.RemoveAt(splineControlPoints.Count - 1);
     }
 
     public void RefreshSplinePoints()
     {
-        var deltaT = 1.0f / (InterpolationSteps - 1);
         _splinePoints.Clear();
 
         _splinePoints.Add(splineControlPoints[0].position);
@@ -72,6 +78,18 @@ public class HermiteSpline : MonoBehaviour
                 _splinePoints.Add(p);
             }
             _splinePoints.Add(splineControlPoints[i].position);
+        }
+    }
+
+    public void GenerateRandomSpline(int controlPoints)
+    {
+        splineControlPoints.Clear();
+        for(int i = 0; i < controlPoints; ++i)
+        {
+            HermiteSplineControlPoint tmp = new HermiteSplineControlPoint();
+            tmp.position = new Vector3(0 + i * 1.5f,0,0);
+
+            splineControlPoints.Add(tmp);
         }
     }
 
@@ -90,11 +108,6 @@ public class HermiteSpline : MonoBehaviour
                 Gizmos.DrawWireSphere(_splinePoints[i], .3f);
                 cpCount++;
             }
-            else
-            {
-                Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(_splinePoints[i], .2f);
-            }
 
             if(lastPos != Vector3.zero)
             {
@@ -103,6 +116,7 @@ public class HermiteSpline : MonoBehaviour
             }
             lastPos = _splinePoints[i];
         }
-        //Gizmos.DrawLine(Parameters.EndControlPoint, lastPos);
+        if(splineControlPoints.Count > 1)
+            Gizmos.DrawLine(splineControlPoints[splineControlPoints.Count - 1].position, lastPos);
     }
 }
