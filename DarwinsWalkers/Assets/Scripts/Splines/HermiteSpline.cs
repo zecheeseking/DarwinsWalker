@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 [Serializable]
 public struct HermiteSplineControlPoint
@@ -87,10 +87,22 @@ public class HermiteSpline : MonoBehaviour
         for(int i = 0; i < controlPoints; ++i)
         {
             HermiteSplineControlPoint tmp = new HermiteSplineControlPoint();
-            tmp.position = new Vector3(0 + i * 1.5f,0,0);
+            if (i == 0)
+                tmp.position = new Vector3(0, UnityEngine.Random.Range(-5.0f, 5.0f), 0);
+            else
+                tmp.position = new Vector3(splineControlPoints[i - 1].position.x + UnityEngine.Random.Range(0.5f, 5.0f), UnityEngine.Random.Range(-5.0f, 5.0f), 0);
+
+            tmp.tangent = tmp.position;
 
             splineControlPoints.Add(tmp);
         }
+
+        HermiteSplineControlPoint tmpEnd = new HermiteSplineControlPoint();
+        tmpEnd.position = new Vector3(splineControlPoints[splineControlPoints.Count - 1].position.x + UnityEngine.Random.Range(0.5f, 5.0f), 
+            UnityEngine.Random.Range(-5.0f, 5.0f), 0);
+        tmpEnd.tangent = tmpEnd.position;
+
+        splineControlPoints.Add(tmpEnd);
     }
 
     private void OnDrawGizmos()
