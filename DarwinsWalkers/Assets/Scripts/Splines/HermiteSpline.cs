@@ -83,7 +83,7 @@ public class HermiteSpline : MonoBehaviour
     public void GenerateRandomSpline(int controlPoints)
     {
         splineControlPoints.Clear();
-        for(int i = 0; i < controlPoints; ++i)
+        for(int i = 0; i < controlPoints - 1; ++i)
         {
             HermiteSplineControlPoint tmp = new HermiteSplineControlPoint();
             if (i == 0)
@@ -104,30 +104,30 @@ public class HermiteSpline : MonoBehaviour
         splineControlPoints.Add(tmpEnd);
     }
 
-    private void OnDrawGizmos()
-    {
-        Vector3 lastPos = Vector3.zero;
-        int cpCount = 0;
+    //private void OnDrawGizmos()
+    //{
+    //    Vector3 lastPos = Vector3.zero;
+    //    int cpCount = 0;
 
-        for(int i = 0; i < _splinePoints.Count; ++i)
-        {
-            if (i % (InterpolationSteps - 1) == 0)
-            {
-                Gizmos.color = Color.white;
-                Gizmos.DrawLine(_splinePoints[i], splineControlPoints[cpCount].tangent);
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(_splinePoints[i], .3f);
-                cpCount++;
-            }
+    //    for(int i = 0; i < _splinePoints.Count; ++i)
+    //    {
+    //        if (i % (InterpolationSteps - 1) == 0)
+    //        {
+    //            Gizmos.color = Color.white;
+    //            Gizmos.DrawLine(_splinePoints[i], splineControlPoints[cpCount].tangent);
+    //            Gizmos.color = Color.red;
+    //            Gizmos.DrawWireSphere(_splinePoints[i], .3f);
+    //            cpCount++;
+    //        }
 
-            if(lastPos != Vector3.zero)
-            {
-                Gizmos.color = Color.white;
-                Gizmos.DrawLine(lastPos, _splinePoints[i]);
-            }
-            lastPos = _splinePoints[i];
-        }
-        if(splineControlPoints.Count > 1)
-            Gizmos.DrawLine(splineControlPoints[splineControlPoints.Count - 1].position, lastPos);
-    }
+    //        if(lastPos != Vector3.zero)
+    //        {
+    //            Gizmos.color = Color.white;
+    //            Gizmos.DrawLine(lastPos, _splinePoints[i]);
+    //        }
+    //        lastPos = _splinePoints[i];
+    //    }
+    //    if(splineControlPoints.Count > 1)
+    //        Gizmos.DrawLine(splineControlPoints[splineControlPoints.Count - 1].position, lastPos);
+    //}
 }
