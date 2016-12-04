@@ -1,13 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public class Individual {
+public class Individual
+{
 
     private float _fitness;
     public GameObject HermiteSpline;
     private List<float[]> _genotype = new List<float[]>();
 
-    public List<float[]> Genotype {
+    public List<float[]> Genotype
+    {
         get { return _genotype; }
         private set { }
     }
@@ -21,14 +23,17 @@ public class Individual {
     {
         HermiteSpline = GameObject.Instantiate(splinePrefab);
         HermiteSpline.name = name;
-        if(randomize)
+        if (randomize)
             HermiteSpline.GetComponent<HermiteSpline>().GenerateRandomSpline(4);
 
         var spline = HermiteSpline.GetComponent<HermiteSpline>();
 
-        foreach(HermiteSplineControlPoint hcp in spline.splineControlPoints)
+        int splineCPCount = spline.GetControlPointCount();
+        for (int i = 0; i < splineCPCount; ++i)
         {
-            float[] cp = { hcp.position.x, hcp.position.y, hcp.tangent.x, hcp.tangent.y};
+            var hcp = spline.GetSplinePointAt(i);
+
+            float[] cp = { hcp.Position.x, hcp.Position.y, hcp.Tangent.x, hcp.Tangent.y };
             _genotype.Add(cp);
         }
     }
@@ -48,11 +53,11 @@ public class Individual {
 
     public void Mutate(float mutationRate)
     {
-        if(Random.Range(0.0f, 100.0f) < mutationRate)
+        if (Random.Range(0.0f, 100.0f) < mutationRate)
         {
             int iMutate = Random.Range(0, _genotype.Count);
 
-            if(iMutate == 0)
+            if (iMutate == 0)
             {
                 _genotype[iMutate][0] = 0.0f;
                 _genotype[iMutate][1] = UnityEngine.Random.Range(-5.0f, 5.0f);
@@ -71,15 +76,15 @@ public class Individual {
 
     public void UpdateAttributesFromGene()
     {
-        HermiteSpline hSpline = this.HermiteSpline.GetComponent<HermiteSpline>();
-        hSpline.splineControlPoints.Clear();
+        //HermiteSpline hSpline = this.HermiteSpline.GetComponent<HermiteSpline>();
+        //hSpline.splineControlPoints.Clear();
 
-        for(int x = 0; x < _genotype.Count; ++x)
-        {
-            HermiteSplineControlPoint hcp;
-            hcp.position = new Vector3(_genotype[x][0], _genotype[x][1], 0);
-            hcp.tangent = new Vector3(_genotype[x][2], _genotype[x][3], 0);
-            hSpline.splineControlPoints.Add(hcp);
-        }
+        //for(int x = 0; x < _genotype.Count; ++x)
+        //{
+        //    HermiteSplineControlPoint hcp;
+        //    hcp.position = new Vector3(_genotype[x][0], _genotype[x][1], 0);
+        //    hcp.tangent = new Vector3(_genotype[x][2], _genotype[x][3], 0);
+        //    hSpline.splineControlPoints.Add(hcp);
+        //}
     }
 }
