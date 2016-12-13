@@ -31,6 +31,15 @@ public class HermiteSpline : MonoBehaviour
     private void Awake()
     {
         _lineRenderer = gameObject.GetComponent<LineRenderer>();
+
+        if(_lineRenderer)
+            _lineRenderer.SetColors(Color, Color);
+    }
+
+    public void CopyFromSpline(HermiteSpline spline)
+    {
+        _splineControlPoints = spline._splineControlPoints;
+        RefreshSplinePoints();
     }
 
     public void SetControlPointAt(int i, Vector3 pos, Vector3 tanPos)
@@ -52,12 +61,13 @@ public class HermiteSpline : MonoBehaviour
     {
         _splineControlPoints.Add(new HermiteSplineControlPoint(pos, tan));
     }
+
     public void RemoveControlPoint()
     {
         _splineControlPoints.RemoveAt(_splineControlPoints.Count - 1);
     }
 
-    public void Update()
+    public void VisualizeSpline()
     {
         if (!_lineRenderer)
             return;
@@ -122,9 +132,10 @@ public class HermiteSpline : MonoBehaviour
         _splineControlPoints.Add(tmpEnd);
     }
 
-    public void SampleYCoordinate(float scalar)
+    public float SampleYCoordinate(float scalar)
     {
-        
+        var point = CalculateSplinePoint(scalar, _splineControlPoints[0], _splineControlPoints[1]);
+        return point.y;
     }
 
     //private void OnDrawGizmos()

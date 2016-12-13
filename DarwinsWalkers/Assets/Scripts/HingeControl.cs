@@ -6,15 +6,22 @@ public class HingeControl : MonoBehaviour
 
     private HingeJoint2D _hinge;
 
-    public HermiteSpline TargetForceSpline;
+    public HermiteSpline[] ForceSplines = new HermiteSpline[3];
 
     private float _timer = 0.0f;
-    public float MaxiumumTime = 1.0f;
+    public float MaxiumumTime = 5.0f;
 
     // Use this for initialization
     void Awake ()
 	{
 	    _hinge = gameObject.GetComponent<HingeJoint2D>();
+
+        //Fill with dummy data to test out viewing splines
+	    for (int i = 0; i < 3; ++i)
+	    {
+	        ForceSplines[i] = gameObject.AddComponent<HermiteSpline>();
+            ForceSplines[i].GenerateRandomSpline(3);
+	    }
 
 	    if (!_hinge) return;
 	}
@@ -22,34 +29,24 @@ public class HingeControl : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+        _timer += Time.deltaTime;
 
-	    _timer += Time.deltaTime;
+        if (_timer > MaxiumumTime)
+        {
+            _timer = 0.0f;
+        }
 
-	    if (_timer > MaxiumumTime)
-	    {
-	        Debug.Log("RESET");
-	        _timer = 0.0f;
-	    }
+        var scalar = _timer / MaxiumumTime;
 
-	    var scalar = _timer/MaxiumumTime;
+        var motor = _hinge.motor;
+        motor.motorSpeed = _hinge.motor.motorSpeed + ForceSplines[1].SampleYCoordinate(scalar);
+        motor.maxMotorTorque = 5.0f;
 
+        _hinge.motor = motor;
+    }
 
-
-	    //if (Input.GetKey(KeyCode.W))
-	    //{
-	    //    var motor = _hinge.motor;
-	    //    motor.motorSpeed = _hinge.motor.motorSpeed + 5.0f;
-	    //    motor.maxMotorTorque = 100.0f;
-
-	    //    _hinge.motor = motor;
-	    //}
-	    //   else if (Input.GetKey(KeyCode.S))
-	    //{
-	    //       var motor = _hinge.motor;
-	    //       motor.motorSpeed = _hinge.motor.motorSpeed + -5.0f;
-	    //       motor.maxMotorTorque = 100.0f;
-
-	    //       _hinge.motor = motor;
-	    //   }
-	}
+    private void Visualize()
+    {
+        
+    }
 }

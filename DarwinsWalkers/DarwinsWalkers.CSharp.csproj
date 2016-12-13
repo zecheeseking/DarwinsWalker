@@ -72,6 +72,9 @@
     <Compile Include="Assets\Scripts\IK\IKController.cs" />
     <Compile Include="Assets\Scripts\IK\IKLink.cs" />
     <Compile Include="Assets\Scripts\Individual.cs" />
+    <Compile Include="Assets\Scripts\JointSelection.cs" />
+    <Compile Include="Assets\Scripts\SceneManager.cs" />
+    <Compile Include="Assets\Scripts\SplineViewSingleton.cs" />
     <Compile Include="Assets\Scripts\Splines\HermiteSpline.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\SyntaxTree\UnityVS\2015\UnityVS.CSharp.targets" />
