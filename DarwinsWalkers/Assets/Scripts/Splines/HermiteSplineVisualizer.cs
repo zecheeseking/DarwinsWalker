@@ -48,12 +48,12 @@ public class HermiteSplineVisualizer : MonoBehaviour
 
     void Awake()
     {
-        lineRenderer = gameObject.AddComponent<LineRenderer>();
-        if (lineRenderer)
-        {
-            lineRenderer.startColor = Color;
-            lineRenderer.endColor = Color;
-        }
+        lineRenderer = gameObject.GetComponent<LineRenderer>();
+        if (!lineRenderer)
+            lineRenderer = gameObject.AddComponent<LineRenderer>();
+
+        lineRenderer.startColor = Color;
+        lineRenderer.endColor = Color;
     }
 }
 
@@ -66,7 +66,7 @@ public class HermiteSpline
     {
         Debug.LogWarning("STILL GOTTA SETUP THIS ONCE GENOTYPE LAYOUT IS FINALIZED.");
         splineControlPoints.Add(new HermiteSplineControlPoint(Vector3.zero, Vector3.forward));
-        splineControlPoints.Add(new HermiteSplineControlPoint(Vector3.forward, Vector3.forward));
+        splineControlPoints.Add(new HermiteSplineControlPoint(new Vector3(1,1), Vector3.forward));
     }
 
     public void SetControlPointAt(int i, Vector3 pos, Vector3 tanPos)

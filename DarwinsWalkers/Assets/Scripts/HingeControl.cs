@@ -17,18 +17,14 @@ public class HingeControl : MonoBehaviour
     void Awake ()
 	{
 	    _hinge = gameObject.GetComponent<HingeJoint2D>();
-
-        //Fill with dummy data to test out viewing splines
-	    //for (int i = 0; i < 3; ++i)
-	    //{
-	    //    ForceSplines[i] = gameObject.AddComponent<HermiteSpline>();
-        //    ForceSplines[i].GenerateRandomSpline(2);
-	    //}
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
+	    if (ForceSplines[0] == null)
+	        return;
+
         if(!reversed)
             _timer += Time.deltaTime;
         else
@@ -49,14 +45,9 @@ public class HingeControl : MonoBehaviour
         //Debug.Log(scalar);
 
         var motor = _hinge.motor;
-        motor.motorSpeed = ForceSplines[1].SampleYCoordinate(scalar);
+        motor.motorSpeed = ForceSplines[0].SampleYCoordinate(scalar) * 15f;
         motor.maxMotorTorque = 15.0f;
 
         _hinge.motor = motor;
-    }
-
-    private void Visualize()
-    {
-        
     }
 }

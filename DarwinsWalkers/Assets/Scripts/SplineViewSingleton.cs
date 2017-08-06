@@ -23,12 +23,6 @@ public class SplineViewSingleton : MonoBehaviour
     {
         _display = gameObject.GetComponentInChildren<Camera>();
 
-        var splines = gameObject.GetComponentsInChildren<HermiteSpline>();
-
-        _startSpline.Spline = splines[0];
-        _cyclicSpline.Spline = splines[1];
-        _endSpline.Spline = splines[2];
-
         _display.gameObject.SetActive(false);
 
         _instance = this;

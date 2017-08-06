@@ -11,14 +11,18 @@ public class Phenotype : MonoBehaviour
     private Transform HipBone;
 
     private float timer = 0.0f;
-    private static float maxTime = 30.0f;
+    private static float maxTime = 5.0f;
 
     private bool terminate = false;
 
+    private Genotype genotype = null;
     private float fitness = 0.0f;
 
     void SetGenotype(Genotype genotype)
     {
+        this.genotype = genotype;
+        HipBone = transform;
+
         HipBone.FindChild("LThigh").GetComponent<HingeControl>().ForceSplines = 
             new []{ new HermiteSpline(genotype.GetSplineController(Genotype.EGenotypeIndex.LHip))};
         HipBone.FindChild("LShin").GetComponent<HingeControl>().ForceSplines =
@@ -40,12 +44,14 @@ public class Phenotype : MonoBehaviour
 
         if (Terminate())
         {
-            //Deactivate
-            //gameObject.SetActive(false);
             //Record fitness
-            //Register to GA.
-        }	
-	}
+            genotype.Fitness = fitness;
+            //Register to GA
+            GeneticAlgorithm.Instance.RegisterResults(genotype);
+            //Cleanup object
+            Destroy(gameObject);
+        }
+    }
 
     bool Terminate()
     {

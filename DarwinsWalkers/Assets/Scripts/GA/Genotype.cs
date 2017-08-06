@@ -19,6 +19,8 @@ public class Genotype
     //An array of 3 floats for each spline
     //Set amount of joints always, LHip, RHip, LKnee, RKnee, LAnkle, RAnkle
     private List<float[]> genotype = new List<float[]>();
+    public List<float[]> GetRawGenotype(){ return genotype; }
+    public float Fitness { get; set; }
 
     public float[] GetSplineController(EGenotypeIndex index)
     {
@@ -34,6 +36,23 @@ public class Genotype
             float c = Random.Range(MIN_FLOAT, MAX_FLOAT);
 
             genotype.Add(new [] {a,b,c});
+        }
+    }
+
+    public void Mutate(float mutationRate)
+    {
+        if (Random.Range(0.0f, 100.0f) < mutationRate)
+        {
+            int iMutate = Random.Range(0, genotype.Count);
+
+            if (iMutate == 0 || iMutate == genotype.Count - 1)
+            {
+                //Have to set both these to the same value to ensure that the splines will cycle properly.
+            }
+            else
+            {
+                //Just random it.
+            }
         }
     }
 }
