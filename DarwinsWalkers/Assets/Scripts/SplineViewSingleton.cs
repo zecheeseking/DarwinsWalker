@@ -15,9 +15,9 @@ public class SplineViewSingleton : MonoBehaviour
     }
 
     private static Camera _display;
-    private HermiteSpline _startSpline;
-    private HermiteSpline _cyclicSpline;
-    private HermiteSpline _endSpline;
+    private HermiteSplineVisualizer _startSpline;
+    private HermiteSplineVisualizer _cyclicSpline;
+    private HermiteSplineVisualizer _endSpline;
 
     void Awake()
     {
@@ -25,9 +25,9 @@ public class SplineViewSingleton : MonoBehaviour
 
         var splines = gameObject.GetComponentsInChildren<HermiteSpline>();
 
-        _startSpline = splines[0];
-        _cyclicSpline = splines[1];
-        _endSpline = splines[2];
+        _startSpline.Spline = splines[0];
+        _cyclicSpline.Spline = splines[1];
+        _endSpline.Spline = splines[2];
 
         _display.gameObject.SetActive(false);
 
@@ -41,15 +41,8 @@ public class SplineViewSingleton : MonoBehaviour
         if(!_display.gameObject.activeSelf)
             _display.gameObject.SetActive(true);
 
-        _startSpline.CopyFromSpline(startSpline);
-        _cyclicSpline.CopyFromSpline(cyclicSpline);
-        _endSpline.CopyFromSpline(endSpline);
-    }
-
-    // Update is called once per frame
-    void Update () {
-	    _startSpline.VisualizeSpline();
-        _cyclicSpline.VisualizeSpline();
-        _endSpline.VisualizeSpline();
+        _startSpline.Spline = startSpline;
+        _cyclicSpline.Spline = cyclicSpline;
+        _endSpline.Spline = endSpline;
     }
 }
