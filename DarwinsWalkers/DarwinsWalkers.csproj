@@ -100,7 +100,8 @@
     <Compile Include="Assets\Scripts\JointSelection.cs" />
     <Compile Include="Assets\Scripts\SceneManager.cs" />
     <Compile Include="Assets\Scripts\SplineViewSingleton.cs" />
-    <Compile Include="Assets\Scripts\Splines\HermiteSplineVisualizer.cs" />
+    <Compile Include="Assets\Scripts\Splines\HermiteSpline.cs" />
+    <Compile Include="Assets\Scripts\Splines\HermiteSplineMonoBehaviour.cs" />
     <Compile Include="Assets\Scripts\Utilities.cs" />
   </ItemGroup>
   <ItemGroup>

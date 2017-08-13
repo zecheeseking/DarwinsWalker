@@ -39,15 +39,6 @@ public class GeneticAlgorithm : MonoBehaviour
 	// Use this for initialization
 	void Awake ()
     {
-        //    private PopulationSelection AssignSelection(SelectionType selectionType)
-        //    {
-        //        if (selectionType == SelectionType.Roulette)
-        //            return RouletteWheelSelection;
-        //        else if (selectionType == SelectionType.BreedingPool)
-        //            return BreedingPoolSelection;
-
-        //        return null;
-        //    }
         //Construct population. Involves generating initial genotypes and constructing Phenotypes from the genotypes.
         for (int i = 0; i < PopulationSize; i++)
             Population.Add(new Genotype());

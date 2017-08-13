@@ -1,87 +1,91 @@
-﻿//using UnityEditor;
-//using UnityEngine;
-//using System.Collections.Generic;
+﻿using UnityEditor;
+using UnityEngine;
 
-//struct ControlPointHandle
-//{
-//    public ControlPointHandle(Vector3 pos, Vector3 tan)
-//    {
-//        this.pos = pos;
-//        this.tan = tan;
-//    }
-
-//    public Vector3 pos;
-//    public Vector3 tan;
-//}
-
-//[CustomEditor(typeof(HermiteSpline))]
-//public class HermiteSplineEditor : Editor
-//{
+[CustomEditor(typeof(HermiteSplineMonoBehaviour))]
+public class HermiteSplineEditor : Editor
+{
 //    private List<ControlPointHandle> handles = new List<ControlPointHandle>();
+    private HermiteSplineMonoBehaviour hSpline;
+    private Transform hSplineTransform;
+    private Quaternion hSplineRotation;
 
-//    public override void OnInspectorGUI()
-//    {
-//        base.OnInspectorGUI();
+    private const int lineSteps = 50;
 
-//        GUILayout.BeginHorizontal();
-//        GUILayout.FlexibleSpace();
-//        if(GUILayout.Button("Add CP", GUILayout.Width(100)))
-//        {
-//            var hSpline = (HermiteSpline)target;
-//            AddHandle();
-//            hSpline.AddControlPoint(handles[handles.Count - 1].pos, handles[handles.Count - 1].tan);
+    private void OnSceneGUI()
+    {
+        hSpline = target as HermiteSplineMonoBehaviour;
+        hSplineTransform = hSpline.transform;
+        hSplineRotation = hSplineTransform.rotation;
 
-//            EditorUtility.SetDirty(hSpline);
+        if (hSpline.Spline == null)
+            return;
 
-//        }
-//        if (GUILayout.Button("Remove CP", GUILayout.Width(100)))
-//        {
-//            var hSpline = (HermiteSpline)target;
-//            handles.RemoveAt(handles.Count - 1);
-//            hSpline.RemoveControlPoint();
+        Vector3 p0 = ShowPositionPoint(0);
+        Vector3 p1 = ShowTangentPoint(0);
+        for (int i = 1; i < hSpline.Spline.GetControlPointCount(); i++)
+        {
+            Vector3 p2 = ShowPositionPoint(i);
+            Vector3 p3 = ShowTangentPoint(i);
 
-//            EditorUtility.SetDirty(hSpline);
-//        }
-//        if (GUILayout.Button("Refresh Spline", GUILayout.Width(100)))
-//        {
-//            var hSpline = (HermiteSpline)target;
-//            hSpline.RefreshSplinePoints();
+            Handles.color = Color.white;
+            Handles.DrawLine(p0, p1);
+            Handles.DrawLine(p2, p3);
 
-//            EditorUtility.SetDirty(hSpline);
-//        }
-//        GUILayout.FlexibleSpace();
-//        GUILayout.EndHorizontal();
-//    }
+            p0 = p2;
+            p1 = p3;
+        }
 
-//    private void AddHandle()
-//    {
-//        if (handles.Count == 0)
-//            handles.Add(new ControlPointHandle(new Vector3(0, 0, 0), new Vector3(1, 0, 0)));
-//        else
-//        {
-//            var newPos = handles[handles.Count - 1].pos + new Vector3(3,0,0);
-//            handles.Add(new ControlPointHandle(newPos, newPos + new Vector3(1,0,0)));
-//        }
-//    }
+        Handles.color = Color.white;
+        Vector3 lineStart = hSpline.GetPoint(0f);
+        for (int i = 1; i <= lineSteps; i++)
+        {
+            Vector3 lineEnd = hSpline.GetPoint(i / (float)lineSteps);
+            Handles.DrawLine(lineStart, lineEnd);
+            lineStart = lineEnd;
+        }
+    }
 
-//    private void OnSceneGUI()
-//    {
-//        var hSpline = (HermiteSpline)target;
-        
-//        for(int i = 0; i < handles.Count; ++i)
-//        {
-//            HermiteSplineControlPoint hcp = hSpline.GetSplinePointAt(i);
-//            Vector3 startMove = hcp.Position;
-//            var pos = Handles.FreeMoveHandle(handles[i].pos, Quaternion.identity, 1f, new Vector3(1f, 1f, 1f), Handles.RectangleCap);
-//            var tan = Handles.FreeMoveHandle(handles[i].tan, Quaternion.identity, .5f, new Vector3(1f, 1f, 1f), Handles.RectangleCap);
-//            handles[i] = new ControlPointHandle(pos, tan);
-//            hSpline.SetControlPointAt(i, handles[i].pos, handles[i].tan);
-//        }
+    private Vector3 ShowPositionPoint(int index)
+    {
+        var cp = hSpline.Spline.GetSplinePointAt(index);
+        Vector3 p = hSplineTransform.TransformPoint(cp.Position);
+        EditorGUI.BeginChangeCheck();
+        p = Handles.DoPositionHandle(p, hSplineRotation);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(hSpline, "Move Point");
+            EditorUtility.SetDirty(hSpline);
+            hSpline.Spline.SetControlPointAt(index, hSplineTransform.InverseTransformPoint(p), cp.Tangent);
+        }
 
-//        if (GUI.changed)
-//        {
-//            EditorUtility.SetDirty(hSpline);
-//            hSpline.RefreshSplinePoints();
-//        }
-//    }
-//}
+        return p;
+    }
+
+    private Vector3 ShowTangentPoint(int index)
+    {
+        var cp = hSpline.Spline.GetSplinePointAt(index);
+        Vector3 p = hSplineTransform.TransformPoint(cp.Tangent);
+        EditorGUI.BeginChangeCheck();
+        p = Handles.DoPositionHandle(p, hSplineRotation);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Undo.RecordObject(hSpline, "Move Point");
+            EditorUtility.SetDirty(hSpline);
+            hSpline.Spline.SetControlPointAt(index, cp.Position, hSplineTransform.InverseTransformPoint(p));
+        }
+
+        return p;
+    }
+
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+        hSpline = target as HermiteSplineMonoBehaviour;
+        if (GUILayout.Button("Add Curve"))
+        {
+            Undo.RecordObject(hSpline, "Add Curve");
+            hSpline.AddControlPoint();
+            EditorUtility.SetDirty(hSpline);
+        }
+    }
+}
