@@ -10,6 +10,8 @@ public class HingeControl : MonoBehaviour
 
     private float _timer = 0.0f;
     public float MaxiumumTime = 5.0f;
+    public float MaximumForce = 10.0f;
+    public float MaximumTorque = 10.0f;
 
     private bool reversed = false;
 
@@ -42,11 +44,10 @@ public class HingeControl : MonoBehaviour
         }
 
         var scalar = _timer / MaxiumumTime;
-        //Debug.Log(scalar);
 
         var motor = _hinge.motor;
-        motor.motorSpeed = ForceSplines[0].SampleYCoordinate(scalar) * 15f;
-        motor.maxMotorTorque = 15.0f;
+        motor.motorSpeed = ForceSplines[0].SampleYCoordinate(scalar) * MaximumForce;
+        motor.maxMotorTorque = MaximumTorque;
 
         _hinge.motor = motor;
     }

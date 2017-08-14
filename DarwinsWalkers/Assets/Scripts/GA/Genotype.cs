@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
+[Serializable]
 public class Genotype
 {
-    public const float MIN_XY_FLOAT = -5.0f;
-    public const float MAX_XY_FLOAT = 5.0f;
+    public const float MIN_XY_FLOAT = -1.0f;
+    public const float MAX_XY_FLOAT = 1.0f;
 
     public enum EGenotypeIndex
     {
@@ -21,8 +22,11 @@ public class Genotype
     //Set amount of joints always, LHip, RHip, LKnee, RKnee, LAnkle, RAnkle
     //Each Control point is 4 numbers. Use the Enum to calculate the offset, each spline fixed to 4 control points, 
     //will have 5 due to start and end being the same.
-    private List<float[]> genotype = new List<float[]>();
+    [SerializeField]
+    public List<float[]> genotype = new List<float[]>();
     public List<float[]> GetRawGenotype(){ return genotype; }
+    public void SetRawGenotype(List<float[]> newGenotype){ genotype = newGenotype; }
+
     public float Fitness { get; set; }
 
     public float[] GetSplineController(EGenotypeIndex index)
@@ -56,17 +60,27 @@ public class Genotype
 
     public void Mutate(float mutationRate)
     {
-        if (Random.Range(0.0f, 100.0f) < mutationRate)
-        {
-            int iMutate = Random.Range(0, genotype.Count);
 
-            if (iMutate == 0 || iMutate == genotype.Count - 1)
+        foreach (float[] splines in genotype)
+        {
+            for (int ii = 0; ii < splines.Length - 4; ii++)
             {
-                //Have to set both these to the same value to ensure that the splines will cycle properly.
-            }
-            else
-            {
-                //Just random it.
+                float mutate = Random.Range(0.0f, 1.0f);
+                if (mutate < mutationRate)
+                {
+                    float f = Random.Range(-1.0f, 1.0f);
+
+                    //To ensure end control points are the same.
+                    if (ii < 4)
+                    {
+                        splines[ii] = f;
+                        splines[splines.Length - 4 + ii] = f;
+                    }
+                    else
+                    {
+                        splines[ii] = f;
+                    }
+                }
             }
         }
     }

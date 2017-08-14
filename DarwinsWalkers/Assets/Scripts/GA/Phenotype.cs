@@ -11,7 +11,6 @@ public class Phenotype : MonoBehaviour
     private Transform HipBone;
 
     private float timer = 0.0f;
-    private static float maxTime = 5.0f;
 
     private bool terminate = false;
 
@@ -57,7 +56,7 @@ public class Phenotype : MonoBehaviour
     {
         timer += Time.deltaTime;
 
-        if (timer > maxTime)
+        if (timer > GeneticAlgorithm.Instance.GenerationTimeLimit)
             terminate = true;
 
         return terminate;
