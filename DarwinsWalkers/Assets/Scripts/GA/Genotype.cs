@@ -43,17 +43,25 @@ public class Genotype
             int startIndex = genotype.Count;
             for (int i = 0; i <= 4 * 4; i++)
             {
+                float[] initializeSplineCps = new float[4 * 5];
                 float[] splineCps = new float[4 * 5];
 
                 for (int ii = 0; ii < splineCps.Length - 4; ii++)
+                {
+                    initializeSplineCps[ii] = Random.Range(MIN_XY_FLOAT, MAX_XY_FLOAT);
                     splineCps[ii] = Random.Range(MIN_XY_FLOAT, MAX_XY_FLOAT);
+                }
 
-                splineCps[splineCps.Length - 4] = splineCps[0];
-                splineCps[splineCps.Length - 3] = splineCps[1];
-                splineCps[splineCps.Length - 2] = splineCps[2];
-                splineCps[splineCps.Length - 1] = splineCps[3];
+                initializeSplineCps[initializeSplineCps.Length - 4] = splineCps[splineCps.Length - 4] = splineCps[0];
+                initializeSplineCps[initializeSplineCps.Length - 3] = splineCps[splineCps.Length - 3] = splineCps[1];
+                initializeSplineCps[initializeSplineCps.Length - 2] = splineCps[splineCps.Length - 2] = splineCps[2];
+                initializeSplineCps[initializeSplineCps.Length - 1] = splineCps[splineCps.Length - 1] = splineCps[3];
 
-                genotype.Add(splineCps);
+                List<float> completeGenotype = new List<float>(initializeSplineCps);
+                foreach(float f in splineCps)
+                    completeGenotype.Add(f);
+
+                genotype.Add(completeGenotype.ToArray());
             }
         }
     }
@@ -75,28 +83,23 @@ public class Genotype
 
     public void Mutate(float mutationRate)
     {
-
         foreach (float[] splines in genotype)
         {
-            for (int ii = 0; ii < splines.Length - 4; ii++)
+            for (int ii = 0; ii < splines.Length; ii++)
             {
                 float mutate = Random.Range(0.0f, 1.0f);
                 if (mutate < mutationRate)
                 {
                     float f = Random.Range(-1.0f, 1.0f);
-
-                    //To ensure end control points are the same.
-                    if (ii < 4)
-                    {
-                        splines[ii] = f;
-                        splines[splines.Length - 4 + ii] = f;
-                    }
-                    else
-                    {
-                        splines[ii] = f;
-                    }
+                    splines[ii] = f;
                 }
             }
+
+            //Ensure end point of first spline and beginning + end of cyclic splines are all the same.
+            splines[splines.Length / 2 - 1] = splines[splines.Length / 2 + 3] = splines[splines.Length - 1];
+            splines[splines.Length / 2 - 2] = splines[splines.Length / 2 + 2] = splines[splines.Length - 2];
+            splines[splines.Length / 2 - 3] = splines[splines.Length / 2 + 1] = splines[splines.Length - 3];
+            splines[splines.Length / 2 - 4] = splines[splines.Length / 2] = splines[splines.Length - 4];
         }
     }
 }

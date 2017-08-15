@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 
@@ -22,24 +23,28 @@ public class Phenotype : MonoBehaviour
         this.genotype = genotype;
         HipBone = transform;
 
-        HipBone.FindChild("LThigh").GetComponent<HingeControl>().ForceSplines = 
-            new []{ new HermiteSpline(genotype.GetSplineController(Genotype.EGenotypeIndex.LHip))};
-        HipBone.FindChild("LShin").GetComponent<HingeControl>().ForceSplines =
-            new []{ new HermiteSpline(genotype.GetSplineController(Genotype.EGenotypeIndex.LKnee))};
-        HipBone.FindChild("LFoot").GetComponent<HingeControl>().ForceSplines =
-            new []{ new HermiteSpline(genotype.GetSplineController(Genotype.EGenotypeIndex.LAnkle))};
-        HipBone.FindChild("RThigh").GetComponent<HingeControl>().ForceSplines =
-            new []{ new HermiteSpline(genotype.GetSplineController(Genotype.EGenotypeIndex.RHip))};
-        HipBone.FindChild("RShin").GetComponent<HingeControl>().ForceSplines =
-            new []{ new HermiteSpline(genotype.GetSplineController(Genotype.EGenotypeIndex.RKnee))};
-        HipBone.FindChild("RFoot").GetComponent<HingeControl>().ForceSplines =
-            new []{ new HermiteSpline(genotype.GetSplineController(Genotype.EGenotypeIndex.RAnkle))};
+        SetSplineControllerSplines(HipBone.FindChild("LThigh").GetComponent<HingeControl>(), Genotype.EGenotypeIndex.LHip);
+        SetSplineControllerSplines(HipBone.FindChild("LShin").GetComponent<HingeControl>(), Genotype.EGenotypeIndex.LKnee);
+        SetSplineControllerSplines(HipBone.FindChild("LFoot").GetComponent<HingeControl>(), Genotype.EGenotypeIndex.LAnkle);
+        SetSplineControllerSplines(HipBone.FindChild("RThigh").GetComponent<HingeControl>(), Genotype.EGenotypeIndex.RHip);
+        SetSplineControllerSplines(HipBone.FindChild("RShin").GetComponent<HingeControl>(), Genotype.EGenotypeIndex.RKnee);
+        SetSplineControllerSplines(HipBone.FindChild("RFoot").GetComponent<HingeControl>(), Genotype.EGenotypeIndex.RAnkle);
+    }
+
+    void SetSplineControllerSplines(HingeControl hingeControl, Genotype.EGenotypeIndex index)
+    {
+        var splines = genotype.GetSplineController(index);
+        float[] initializeSplineCps = splines.Take(splines.Length / 2).ToArray();
+        float[] cyclicSplineCps = splines.Skip(splines.Length / 2).ToArray();
+
+        hingeControl.SetSplineControllers(new HermiteSpline(initializeSplineCps), new HermiteSpline(cyclicSplineCps));
     }
 
     // Update is called once per frame
     void Update ()
 	{
-	    fitness = HipBone.position.x;
+        if(HipBone.position.x > fitness)
+	        fitness = HipBone.position.x;
 
         if (Terminate())
         {

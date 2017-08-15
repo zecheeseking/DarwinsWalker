@@ -18,7 +18,7 @@ public class SceneManager : MonoBehaviour
             avgPos.y /= phenotypes.Length;
 	    }
 
-        Camera.main.transform.position = new Vector3(avgPos.x, avgPos.y - 2.0f, -10);
+        Camera.main.transform.position = new Vector3(avgPos.x, 3.04f, -10);
 
         if (Input.GetMouseButtonDown(0))
         {

@@ -14,8 +14,8 @@ public class JointSelection : MonoBehaviour
         if (!hingeControl)
             return;
 
-        SplineViewSingleton.Instance.SetDisplaySplines(hingeControl.ForceSplines[0], 
-            hingeControl.ForceSplines[1], 
-            hingeControl.ForceSplines[2]);
+        //SplineViewSingleton.Instance.SetDisplaySplines(hingeControl.ForceSplines[0], 
+        //    hingeControl.ForceSplines[1], 
+        //    hingeControl.ForceSplines[2]);
     }
 }

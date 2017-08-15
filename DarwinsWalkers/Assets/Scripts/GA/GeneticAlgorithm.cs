@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Application = UnityEngine.Application;
 using Random = UnityEngine.Random;
 
@@ -41,52 +42,20 @@ public class GeneticAlgorithm : MonoBehaviour
     private float crossoverRate = 0.1f;
     public float CrossoverRate { get { return crossoverRate; } set { crossoverRate = value; } }
 
-    public void SetCrossoverRate(string s)
-    {
-        try
-        {
-            float xRate = Single.Parse(s);
-            CrossoverRate = Mathf.Clamp01(xRate);
-        }
-        catch (FormatException ex)
-        {
-            crossoverRateInputField.text = CrossoverRate.ToString();
-        }
-    }
+
 
 
     [SerializeField]
     private float mutationRate = 0.03f;
     public float MutationRate { get { return mutationRate; } set { mutationRate = value; } }
 
-    public void SetMutationRate(string s)
-    {
-        try
-        {
-            float mutRate = Single.Parse(s);
-            MutationRate = Mathf.Clamp01(mutRate);
-        }
-        catch (FormatException ex)
-        {
-            mutationRateInputField.text = MutationRate.ToString();
-        }
-    }
+
 
     private bool autosaveToggle = false;
     public void SetAutosaveToggle() { autosaveToggle = !autosaveToggle; }
     private int autosaveGenerationInterval = 5;
 
-    public void SetAutosaveGenerationInterval(string s)
-    {
-        try
-        {
-            autosaveGenerationInterval = Int32.Parse(s);
-        }
-        catch (FormatException ex)
-        {
-            autosaveGenerationInputField.text = autosaveGenerationInterval.ToString();
-        }
-    }
+    
 
     [SerializeField] private int PopulationSize = 10;
     private int currentGeneration = 0;
@@ -94,11 +63,16 @@ public class GeneticAlgorithm : MonoBehaviour
     private List<Genotype> Population = new List<Genotype>();
     private List<Genotype> results = new List<Genotype>();
 
+    //UI Stuff
     public TextMeshProUGUI crossoverRateInputField;
     public TextMeshProUGUI mutationRateInputField;
     public TextMeshProUGUI autosaveGenerationInputField;
     public TextMeshProUGUI sessionNameInputField;
+    public Slider timeScaleSliderField;
+    public TextMeshProUGUI timeScaleLabel;
 
+
+    #region UnityCallbacks
     // Use this for initialization
     void Awake ()
     {
@@ -118,6 +92,53 @@ public class GeneticAlgorithm : MonoBehaviour
             Evolve();
         }
 	}
+    #endregion
+
+    #region UIHooks
+    public void SetCrossoverRate(string s)
+    {
+        try
+        {
+            float xRate = Single.Parse(s);
+            CrossoverRate = Mathf.Clamp01(xRate);
+        }
+        catch (FormatException ex)
+        {
+            crossoverRateInputField.text = CrossoverRate.ToString("F");
+        }
+    }
+
+    public void SetMutationRate(string s)
+    {
+        try
+        {
+            float mutRate = Single.Parse(s);
+            MutationRate = Mathf.Clamp01(mutRate);
+        }
+        catch (FormatException ex)
+        {
+            mutationRateInputField.text = MutationRate.ToString("F");
+        }
+    }
+
+    public void SetAutosaveGenerationInterval(string s)
+    {
+        try
+        {
+            autosaveGenerationInterval = Int32.Parse(s);
+        }
+        catch (FormatException ex)
+        {
+            autosaveGenerationInputField.text = autosaveGenerationInterval.ToString();
+        }
+    }
+
+    public void SetTimeScale(Single s)
+    {
+        Debug.Log("CALLED");
+        Time.timeScale = s;
+        timeScaleLabel.text = "Timescale: x" + Time.timeScale.ToString("F");
+    }
 
     public void LoadCurrentGenotypes()
     {
@@ -139,27 +160,10 @@ public class GeneticAlgorithm : MonoBehaviour
             {
                 Population.Add(new Genotype(geno));
             }
-
+            currentGeneration = loadedGenotypes.generation;
             //Reset generation.
             ResetGeneration();
         }
-    }
-
-    string SavePopulation()
-    {
-        SaveObject savedGenotypes = new SaveObject();
-        foreach (Genotype g in Population)
-        {
-            savedGenotypes.genotypes.Add(new SaveObject.SavedGenotype(
-                g.genotype[(int)Genotype.EGenotypeIndex.LHip].ToList(),
-                g.genotype[(int)Genotype.EGenotypeIndex.LKnee].ToList(),
-                g.genotype[(int)Genotype.EGenotypeIndex.LAnkle].ToList(),
-                g.genotype[(int)Genotype.EGenotypeIndex.RHip].ToList(),
-                g.genotype[(int)Genotype.EGenotypeIndex.RKnee].ToList(),
-                g.genotype[(int)Genotype.EGenotypeIndex.RAnkle].ToList()));
-        }
-
-        return JsonUtility.ToJson(savedGenotypes);
     }
 
     public void SaveCurrentGenotypes()
@@ -174,6 +178,25 @@ public class GeneticAlgorithm : MonoBehaviour
             string json = SavePopulation();
             File.WriteAllText(sfd.FileName, json);
         }
+    }
+    #endregion
+
+    string SavePopulation()
+    {
+        SaveObject savedGenotypes = new SaveObject();
+        savedGenotypes.generation = currentGeneration;
+        foreach (Genotype g in Population)
+        {
+            savedGenotypes.genotypes.Add(new SaveObject.SavedGenotype(
+                g.genotype[(int)Genotype.EGenotypeIndex.LHip].ToList(),
+                g.genotype[(int)Genotype.EGenotypeIndex.LKnee].ToList(),
+                g.genotype[(int)Genotype.EGenotypeIndex.LAnkle].ToList(),
+                g.genotype[(int)Genotype.EGenotypeIndex.RHip].ToList(),
+                g.genotype[(int)Genotype.EGenotypeIndex.RKnee].ToList(),
+                g.genotype[(int)Genotype.EGenotypeIndex.RAnkle].ToList()));
+        }
+
+        return JsonUtility.ToJson(savedGenotypes);
     }
 
     void ResetGeneration()
@@ -262,7 +285,7 @@ public class GeneticAlgorithm : MonoBehaviour
         var genotypeParent2 = parent2.GetRawGenotype();
         int crossoverPoint = genotypeParent1.Count;
 
-        if (Random.Range(0.0f, 100.0f) < mutationRate)
+        if (Random.Range(0.0f, 1.0f) < crossoverRate)
         {
             crossoverPoint = Random.Range(0, genotypeParent1.Count);
 
@@ -346,5 +369,6 @@ public class SaveObject
         }
     }
 
+    public int generation = 0;
     public List<SavedGenotype> genotypes = new List<SavedGenotype>();
 }

@@ -3,10 +3,17 @@ using System.Collections;
 
 public class HingeControl : MonoBehaviour
 {
-
     private HingeJoint2D _hinge;
+    private HermiteSpline startSpline;
+    private HermiteSpline cyclicSpline;
 
-    public HermiteSpline[] ForceSplines = new HermiteSpline[2];
+    public void SetSplineControllers(HermiteSpline startSpline, HermiteSpline cyclicSpline)
+    {
+        this.startSpline = startSpline;
+        this.cyclicSpline = cyclicSpline;
+    }
+
+   // public HermiteSpline[] ForceSplines = new HermiteSpline[2];
 
     private float _timer = 0.0f;
     public float MaxiumumTime = 5.0f;
@@ -14,6 +21,7 @@ public class HingeControl : MonoBehaviour
     public float MaximumTorque = 10.0f;
 
     private bool reversed = false;
+    private bool hasInitialized = false;
 
     // Use this for initialization
     void Awake ()
@@ -24,9 +32,6 @@ public class HingeControl : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-	    if (ForceSplines[0] == null)
-	        return;
-
         if(!reversed)
             _timer += Time.deltaTime;
         else
@@ -34,7 +39,10 @@ public class HingeControl : MonoBehaviour
 
         if (_timer > MaxiumumTime)
         {
-            reversed = !reversed;
+            if (!hasInitialized)
+                hasInitialized = true;
+            else
+                reversed = !reversed;
             _timer = MaxiumumTime;
         }
         else if(_timer < 0)
@@ -46,8 +54,17 @@ public class HingeControl : MonoBehaviour
         var scalar = _timer / MaxiumumTime;
 
         var motor = _hinge.motor;
-        motor.motorSpeed = ForceSplines[0].SampleYCoordinate(scalar) * MaximumForce;
-        motor.maxMotorTorque = MaximumTorque;
+
+	    if (!hasInitialized)
+	    {
+	        motor.motorSpeed = startSpline.SampleYCoordinate(scalar) * MaximumForce;
+	        motor.maxMotorTorque = MaximumTorque;
+        }
+	    else
+	    {
+	        motor.motorSpeed = cyclicSpline.SampleYCoordinate(scalar) * MaximumForce;
+	        motor.maxMotorTorque = MaximumTorque;
+        }
 
         _hinge.motor = motor;
     }
