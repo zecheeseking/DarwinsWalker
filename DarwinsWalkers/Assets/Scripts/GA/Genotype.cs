@@ -102,11 +102,22 @@ public class Genotype
         {
             for (int ii = 0; ii < splines.Length; ii++)
             {
+                
+
                 float mutate = Random.Range(0.0f, 1.0f);
                 if (mutate < mutationRate)
                 {
-                    float f = Random.Range(-1.0f, 1.0f);
-                    splines[ii] = f;
+                    //Skip X mutations.
+                    if (ii % 4 == 0)
+                        continue;
+                    if (ii % 4 == 1 || ii % 4 == 3)
+                    {
+                        splines[ii] = Random.Range(MIN_XY_FLOAT, MAX_XY_FLOAT);
+                    }
+                    else if (ii % 4 == 2)
+                    {
+                        splines[ii] = Random.Range(0.1f, MAX_XY_FLOAT / 2);
+                    }
                 }
             }
 
