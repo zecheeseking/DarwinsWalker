@@ -82,6 +82,9 @@
     <Reference Include="TextMeshPro-1.0.55.55.0b11">
       <HintPath>Assets\TextMesh Pro\Plugins\TextMeshPro-1.0.55.55.0b11.dll</HintPath>
     </Reference>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>Assets\Plugins\System.Windows.Forms.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\BipedSelection.cs" />
@@ -91,6 +94,7 @@
     <Compile Include="Assets\Scripts\GA\Genotype.cs" />
     <Compile Include="Assets\Scripts\GA\Phenotype.cs" />
     <Compile Include="Assets\Scripts\GATestScript.cs" />
+    <Compile Include="Assets\Scripts\GameMenu.cs" />
     <Compile Include="Assets\Scripts\HingeControl.cs" />
     <Compile Include="Assets\Scripts\IK\Analytical\Analytical_IK.cs" />
     <Compile Include="Assets\Scripts\IK\CyclicCoordinateDescent.cs" />

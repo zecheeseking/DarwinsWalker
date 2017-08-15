@@ -1,15 +1,20 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using TMPro;
 using UnityEngine;
+using Application = UnityEngine.Application;
 using Random = UnityEngine.Random;
 
 public class GeneticAlgorithm : MonoBehaviour
 {
+    //[DllImport("user32.dll")]
+    //private static extern void OpenFileDialog();
+    //private static extern void SaveFileDialog();
+
     public enum SelectionType
     {
         Roulette,
@@ -35,9 +40,53 @@ public class GeneticAlgorithm : MonoBehaviour
     [SerializeField]
     private float crossoverRate = 0.1f;
     public float CrossoverRate { get { return crossoverRate; } set { crossoverRate = value; } }
+
+    public void SetCrossoverRate(string s)
+    {
+        try
+        {
+            float xRate = Single.Parse(s);
+            CrossoverRate = Mathf.Clamp01(xRate);
+        }
+        catch (FormatException ex)
+        {
+            crossoverRateInputField.text = CrossoverRate.ToString();
+        }
+    }
+
+
     [SerializeField]
     private float mutationRate = 0.03f;
     public float MutationRate { get { return mutationRate; } set { mutationRate = value; } }
+
+    public void SetMutationRate(string s)
+    {
+        try
+        {
+            float mutRate = Single.Parse(s);
+            MutationRate = Mathf.Clamp01(mutRate);
+        }
+        catch (FormatException ex)
+        {
+            mutationRateInputField.text = MutationRate.ToString();
+        }
+    }
+
+    private bool autosaveToggle = false;
+    public void SetAutosaveToggle() { autosaveToggle = !autosaveToggle; }
+    private int autosaveGenerationInterval = 5;
+
+    public void SetAutosaveGenerationInterval(string s)
+    {
+        try
+        {
+            autosaveGenerationInterval = Int32.Parse(s);
+        }
+        catch (FormatException ex)
+        {
+            autosaveGenerationInputField.text = autosaveGenerationInterval.ToString();
+        }
+    }
 
     [SerializeField] private int PopulationSize = 10;
     private int currentGeneration = 0;
@@ -47,6 +96,8 @@ public class GeneticAlgorithm : MonoBehaviour
 
     public TextMeshProUGUI crossoverRateInputField;
     public TextMeshProUGUI mutationRateInputField;
+    public TextMeshProUGUI autosaveGenerationInputField;
+    public TextMeshProUGUI sessionNameInputField;
 
     // Use this for initialization
     void Awake ()
@@ -62,30 +113,6 @@ public class GeneticAlgorithm : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-	    try
-	    {
-	        float xRate = Single.Parse(crossoverRateInputField.text);
-	        CrossoverRate = Mathf.Clamp01(xRate);
-	        crossoverRateInputField.text = CrossoverRate.ToString();
-        }
-        catch (FormatException ex)
-	    {
-	        crossoverRateInputField.text = CrossoverRate.ToString();
-	    }
-
-	    try
-	    {
-	        float mutRate = Single.Parse(mutationRateInputField.text);
-	        MutationRate = Mathf.Clamp01(mutRate);
-	        mutationRateInputField.text = MutationRate.ToString();
-        }
-        catch (FormatException ex)
-	    {
-	        mutationRateInputField.text = MutationRate.ToString();
-	    }
-
-        Debug.Log("Crossover rate: " + crossoverRate + ", Mutation rate: " + mutationRate);
-
         if (results.Count == Population.Count)
         {
             Evolve();
@@ -94,12 +121,31 @@ public class GeneticAlgorithm : MonoBehaviour
 
     public void LoadCurrentGenotypes()
     {
-        string json = File.ReadAllText(Application.persistentDataPath + "/SavedPopulation.json");
-        SaveObject loadedGenotypes = JsonUtility.FromJson<SaveObject>(json);
-        Debug.Log("Loading...");
+        OpenFileDialog ofd = new OpenFileDialog();
+
+        ofd.Filter = "All files (*.*)|*.*|JSON files(*.json)|*.json";
+        ofd.InitialDirectory = Application.persistentDataPath;
+
+        if (ofd.ShowDialog() == DialogResult.OK)
+        {
+            Debug.Log(ofd.FileName);
+            string json = File.ReadAllText(ofd.FileName);
+            SaveObject loadedGenotypes = JsonUtility.FromJson<SaveObject>(json);
+            foreach(var geno in loadedGenotypes.genotypes)
+                Debug.Log(geno.RAnkle);
+
+            Population.Clear();
+            foreach (var geno in loadedGenotypes.genotypes)
+            {
+                Population.Add(new Genotype(geno));
+            }
+
+            //Reset generation.
+            ResetGeneration();
+        }
     }
 
-    public void SaveCurrentGenotypes()
+    string SavePopulation()
     {
         SaveObject savedGenotypes = new SaveObject();
         foreach (Genotype g in Population)
@@ -113,8 +159,34 @@ public class GeneticAlgorithm : MonoBehaviour
                 g.genotype[(int)Genotype.EGenotypeIndex.RAnkle].ToList()));
         }
 
-        string json = JsonUtility.ToJson(savedGenotypes);
-        File.WriteAllText(Application.persistentDataPath + "/SavedPopulation.json", json);
+        return JsonUtility.ToJson(savedGenotypes);
+    }
+
+    public void SaveCurrentGenotypes()
+    {
+        SaveFileDialog sfd = new SaveFileDialog();
+
+        sfd.Filter = "All files (*.*)|*.*|JSON files(*.json)|*.json";
+        sfd.InitialDirectory = Application.persistentDataPath;
+
+        if (sfd.ShowDialog() == DialogResult.OK)
+        {
+            string json = SavePopulation();
+            File.WriteAllText(sfd.FileName, json);
+        }
+    }
+
+    void ResetGeneration()
+    {
+        //Destroy all current Phenotypes
+        var livePhenotypes = GameObject.FindObjectsOfType<Phenotype>();
+        foreach(var pheno in livePhenotypes)
+            Destroy(pheno.gameObject); 
+        //Clear any results
+        results.Clear();
+        //Recreate phenotypes from population
+        foreach(var geno in Population)
+            Phenotype.CreatePhenotype(geno);
     }
 
     public void RegisterResults(Genotype genotype)
@@ -126,7 +198,6 @@ public class GeneticAlgorithm : MonoBehaviour
     {
         //Evolve pop
         var newPopulation = new List<Genotype>();
-
 
         //Breed using routlette wheel selection
         for (int i = 0; i < Population.Count / 2; ++i)
@@ -160,6 +231,15 @@ public class GeneticAlgorithm : MonoBehaviour
 
         currentGeneration++;
         generationLabel.text = "Generation " + currentGeneration;
+        if (autosaveToggle && currentGeneration % autosaveGenerationInterval == 0)
+        {
+            string json = SavePopulation();
+            FileInfo file = new FileInfo(Application.persistentDataPath + "/" + sessionNameInputField.text + "/"
+                                         + "autosavePopulation" + currentGeneration / autosaveGenerationInterval + ".json");
+            file.Directory.Create();
+            File.WriteAllText(file.FullName, json);
+        }
+
         results.Clear();
     }
 
@@ -241,6 +321,7 @@ public class GeneticAlgorithm : MonoBehaviour
 }
 
 //Because Unity can't handle saving the data as just a list, I've created this to subclass the genotypes.
+[Serializable]
 public class SaveObject
 {
     [Serializable]

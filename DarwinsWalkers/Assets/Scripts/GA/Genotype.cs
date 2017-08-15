@@ -58,6 +58,21 @@ public class Genotype
         }
     }
 
+    public Genotype(SaveObject.SavedGenotype savedGenotype)
+    {
+        for (int i = 0; i <= (int) EGenotypeIndex.RAnkle; i++)
+        {
+            genotype.Add(null);
+        }
+
+        genotype[(int)EGenotypeIndex.LHip] = savedGenotype.LThigh.ToArray();
+        genotype[(int)EGenotypeIndex.LKnee] = savedGenotype.LShin.ToArray();
+        genotype[(int)EGenotypeIndex.LAnkle] = savedGenotype.LAnkle.ToArray();
+        genotype[(int)EGenotypeIndex.RHip] = savedGenotype.RThigh.ToArray();
+        genotype[(int)EGenotypeIndex.RKnee] = savedGenotype.RShin.ToArray();
+        genotype[(int)EGenotypeIndex.RAnkle] = savedGenotype.RAnkle.ToArray();
+    }
+
     public void Mutate(float mutationRate)
     {
 
