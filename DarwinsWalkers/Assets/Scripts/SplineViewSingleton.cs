@@ -4,39 +4,35 @@ using System.Collections;
 public class SplineViewSingleton : MonoBehaviour
 {
 
-    private static SplineViewSingleton _instance = null;
+    private static SplineViewSingleton instance = null;
 
     public static SplineViewSingleton Instance
     {
         get
         {
-            return _instance;
+            return instance;
         }
     }
 
-    private static Camera _display;
-    //private HermiteSplineVisualizer _startSpline;
-    //private HermiteSplineVisualizer _cyclicSpline;
-    //private HermiteSplineVisualizer _endSpline;
+    public Camera display;
+    public HermiteSplineMonoBehaviour startSpline;
+    public HermiteSplineMonoBehaviour cyclicSpline;
 
     void Awake()
     {
-        _display = gameObject.GetComponentInChildren<Camera>();
-
-        _display.gameObject.SetActive(false);
-
-        _instance = this;
+        instance = this;
+        display.gameObject.SetActive(false);
     }
 
     // Use this for initialization
 
-    public void SetDisplaySplines(HermiteSpline startSpline, HermiteSpline cyclicSpline, HermiteSpline endSpline)
+    public void SetDisplaySplines(HermiteSpline startSpline, HermiteSpline cyclicSpline)
     {
-        if(!_display.gameObject.activeSelf)
-            _display.gameObject.SetActive(true);
+        if(!display.gameObject.activeSelf)
+            display.gameObject.SetActive(true);
 
-        //_startSpline.Spline = startSpline;
-        //_cyclicSpline.Spline = cyclicSpline;
+        this.startSpline.Spline = startSpline;
+        this.cyclicSpline.Spline = cyclicSpline;
         //_endSpline.Spline = endSpline;
     }
 }

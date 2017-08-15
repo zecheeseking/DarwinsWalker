@@ -25,7 +25,9 @@ public class SceneManager : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
-                Debug.Log(hit.collider.gameObject.name);
+            {
+                hit.rigidbody.gameObject.GetComponent<JointSelection>().RaycastHit();
+            }
         }
     }
 }

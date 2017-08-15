@@ -5,7 +5,9 @@ public class HingeControl : MonoBehaviour
 {
     private HingeJoint2D _hinge;
     private HermiteSpline startSpline;
+    public HermiteSpline GetStartSpline() { return startSpline; }
     private HermiteSpline cyclicSpline;
+    public HermiteSpline GetCyclicSpline() { return cyclicSpline; }
 
     public void SetSplineControllers(HermiteSpline startSpline, HermiteSpline cyclicSpline)
     {
@@ -43,7 +45,7 @@ public class HingeControl : MonoBehaviour
                 hasInitialized = true;
             else
                 reversed = !reversed;
-            _timer = MaxiumumTime;
+            _timer = 0.0f;
         }
         else if(_timer < 0)
         {
@@ -56,15 +58,10 @@ public class HingeControl : MonoBehaviour
         var motor = _hinge.motor;
 
 	    if (!hasInitialized)
-	    {
-	        motor.motorSpeed = startSpline.SampleYCoordinate(scalar) * MaximumForce;
-	        motor.maxMotorTorque = MaximumTorque;
-        }
+            motor.motorSpeed = startSpline.SampleYCoordinate(scalar) * MaximumForce;
 	    else
-	    {
-	        motor.motorSpeed = cyclicSpline.SampleYCoordinate(scalar) * MaximumForce;
-	        motor.maxMotorTorque = MaximumTorque;
-        }
+            motor.motorSpeed = cyclicSpline.SampleYCoordinate(scalar) * MaximumForce;
+	    motor.maxMotorTorque = MaximumTorque;
 
         _hinge.motor = motor;
     }

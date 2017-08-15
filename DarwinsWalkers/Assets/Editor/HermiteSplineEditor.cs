@@ -35,7 +35,7 @@ public class HermiteSplineEditor : Editor
             p1 = p3;
         }
 
-        Handles.color = Color.white;
+        Handles.color = Color.grey;
         Vector3 lineStart = hSpline.GetPoint(0f);
         for (int i = 1; i <= lineSteps; i++)
         {

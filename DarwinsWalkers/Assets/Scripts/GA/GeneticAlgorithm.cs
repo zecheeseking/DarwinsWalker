@@ -161,6 +161,8 @@ public class GeneticAlgorithm : MonoBehaviour
                 Population.Add(new Genotype(geno));
             }
             currentGeneration = loadedGenotypes.generation;
+            generationLabel.text = "Generation " + currentGeneration;
+
             //Reset generation.
             ResetGeneration();
         }
