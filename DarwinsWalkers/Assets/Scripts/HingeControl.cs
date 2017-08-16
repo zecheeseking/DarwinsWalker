@@ -22,34 +22,26 @@ public class HingeControl : MonoBehaviour
     public float MaximumForce = 10.0f;
     public float MaximumTorque = 10.0f;
 
-    private bool reversed = false;
     private bool hasInitialized = false;
 
     // Use this for initialization
     void Awake ()
 	{
 	    _hinge = gameObject.GetComponent<HingeJoint2D>();
-	}
-	
-	// Update is called once per frame
-	void Update ()
+	    var motor = _hinge.motor;
+	    motor.maxMotorTorque = MaximumTorque;
+        _hinge.motor = motor;
+    }
+
+    // Update is called once per frame
+    void Update ()
 	{
-        if(!reversed)
-            _timer += Time.deltaTime;
-        else
-            _timer -= Time.deltaTime;
+        _timer += Time.deltaTime;
 
         if (_timer > MaxiumumTime)
         {
             if (!hasInitialized)
                 hasInitialized = true;
-            else
-                reversed = !reversed;
-            _timer = 0.0f;
-        }
-        else if(_timer < 0)
-        {
-            reversed = !reversed;
             _timer = 0.0f;
         }
 
@@ -61,7 +53,6 @@ public class HingeControl : MonoBehaviour
             motor.motorSpeed = startSpline.SampleYCoordinate(scalar) * MaximumForce;
 	    else
             motor.motorSpeed = cyclicSpline.SampleYCoordinate(scalar) * MaximumForce;
-	    motor.maxMotorTorque = MaximumTorque;
 
         _hinge.motor = motor;
     }

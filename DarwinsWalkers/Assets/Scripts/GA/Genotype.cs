@@ -48,6 +48,7 @@ public class Genotype
                 float[] initializeSplineCps = new float[4 * 5];
                 float[] splineCps = new float[4 * 5];
 
+
                 for (int ii = 0; ii < splineCps.Length - 4; ii+=4)
                 {
                     Vector2 positionInitSpline = new Vector2(splineLength / 4.0f * (ii / 4.0f), Random.Range(MIN_XY_FLOAT, MAX_XY_FLOAT));
@@ -69,8 +70,18 @@ public class Genotype
 
                 initializeSplineCps[initializeSplineCps.Length - 4] = splineCps[splineCps.Length - 4] = splineLength;
                 initializeSplineCps[initializeSplineCps.Length - 3] = splineCps[splineCps.Length - 3] = splineCps[1];
-                initializeSplineCps[initializeSplineCps.Length - 2] = splineCps[splineCps.Length - 2] = splineCps[2];
-                initializeSplineCps[initializeSplineCps.Length - 1] = splineCps[splineCps.Length - 1] = splineCps[3];
+
+                //Calculate end direction.
+                Vector2 endTan = new Vector2(splineCps[2], splineCps[3]) - new Vector2(0, splineCps[1]);
+                Vector2 initializeEndTan = new Vector2(initializeSplineCps[initializeSplineCps.Length - 4],
+                                               initializeSplineCps[initializeSplineCps.Length - 3]) + endTan;
+                Vector2 cyclicEndTan = new Vector2(splineCps[splineCps.Length - 4],
+                                           splineCps[splineCps.Length - 3]) + endTan;
+
+                initializeSplineCps[initializeSplineCps.Length - 2] = initializeEndTan.x;
+                initializeSplineCps[initializeSplineCps.Length - 1] = initializeEndTan.y;
+                splineCps[splineCps.Length - 2] = cyclicEndTan.x;
+                splineCps[splineCps.Length - 1] = cyclicEndTan.y;
 
                 List<float> completeGenotype = new List<float>(initializeSplineCps);
                 foreach(float f in splineCps)
@@ -102,30 +113,42 @@ public class Genotype
         {
             for (int ii = 0; ii < splines.Length; ii++)
             {
-                
-
                 float mutate = Random.Range(0.0f, 1.0f);
                 if (mutate < mutationRate)
                 {
                     //Skip X mutations.
                     if (ii % 4 == 0)
                         continue;
-                    if (ii % 4 == 1 || ii % 4 == 3)
+                    if (ii % 4 == 1)
                     {
                         splines[ii] = Random.Range(MIN_XY_FLOAT, MAX_XY_FLOAT);
                     }
+                    else if (ii % 4 == 3)
+                    {
+                        splines[ii] = splines[ii - 2] + Random.Range(MIN_XY_FLOAT, MAX_XY_FLOAT);
+
+                    }
                     else if (ii % 4 == 2)
                     {
-                        splines[ii] = Random.Range(0.1f, MAX_XY_FLOAT / 2);
+                        splines[ii] = splines[ii-2] + Random.Range(0.1f, MAX_XY_FLOAT / 2);
                     }
                 }
             }
 
-            //Ensure end point of first spline and beginning + end of cyclic splines are all the same.
-            splines[splines.Length / 2 - 1] = splines[splines.Length / 2 + 3] = splines[splines.Length - 1];
-            splines[splines.Length / 2 - 2] = splines[splines.Length / 2 + 2] = splines[splines.Length - 2];
+            //Ensure that the beginning + end of the cyclic spline is the same as well as the initialized spline end point.
+            //Set X,Y of position to same.
+            splines[splines.Length / 2] = 0.0f;
+            splines[splines.Length / 2 - 4] = splineLength;
             splines[splines.Length / 2 - 3] = splines[splines.Length / 2 + 1] = splines[splines.Length - 3];
-            splines[splines.Length / 2 - 4] = splines[splines.Length / 2] = splines[splines.Length - 4];
+
+            Vector2 endTan = new Vector2(splines[splines.Length - 2], splines[splines.Length - 1]) - new Vector2(splines[splines.Length - 4], splines[splines.Length - 3]);
+            Vector2 initializeEndTan = new Vector2(splines[splines.Length / 2 - 4], splines[splines.Length / 2 - 3]) + endTan;
+            Vector2 cyclicEndTan = new Vector2(splines[splines.Length / 2], splines[splines.Length / 2 + 1]) + endTan;
+            //Ensure end point of first spline and beginning + end of cyclic splines are all the same.
+            splines[splines.Length / 2 - 2] = initializeEndTan.x;
+            splines[splines.Length / 2 - 1] = initializeEndTan.y;
+            splines[splines.Length / 2 + 2] = cyclicEndTan.x;
+            splines[splines.Length / 2 + 3] = cyclicEndTan.y;
         }
     }
 }
