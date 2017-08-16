@@ -134,8 +134,6 @@ public class Genotype
                     }
                 }
             }
-
-            FixEndPoints();
         }
     }
 
@@ -159,7 +157,6 @@ public class Genotype
             splines[splines.Length / 2 - 1] = initializeEndTan.y;
             splines[splines.Length / 2 + 2] = cyclicBeginningTan.x;
             splines[splines.Length / 2 + 3] = cyclicBeginningTan.y;
-            Debug.Log("Done");
         }
     }
 }

@@ -42,20 +42,13 @@ public class GeneticAlgorithm : MonoBehaviour
     private float crossoverRate = 0.1f;
     public float CrossoverRate { get { return crossoverRate; } set { crossoverRate = value; } }
 
-
-
-
     [SerializeField]
     private float mutationRate = 0.03f;
     public float MutationRate { get { return mutationRate; } set { mutationRate = value; } }
 
-
-
     private bool autosaveToggle = false;
     public void SetAutosaveToggle() { autosaveToggle = !autosaveToggle; }
     private int autosaveGenerationInterval = 5;
-
-    
 
     [SerializeField] private int PopulationSize = 10;
     private int currentGeneration = 0;
@@ -70,7 +63,7 @@ public class GeneticAlgorithm : MonoBehaviour
     public TextMeshProUGUI sessionNameInputField;
     public Slider timeScaleSliderField;
     public TextMeshProUGUI timeScaleLabel;
-
+    public TextMeshProUGUI generationTimerLabel;
 
     #region UnityCallbacks
     // Use this for initialization
@@ -83,10 +76,15 @@ public class GeneticAlgorithm : MonoBehaviour
         foreach(Genotype g in Population)
             Phenotype.CreatePhenotype(g);
 	}
-	
+
+
+    private float internalTimer = 0.0f;
 	// Update is called once per frame
 	void Update ()
 	{
+	    internalTimer += Time.deltaTime;
+	    generationTimerLabel.text = internalTimer.ToString("F");
+
         if (results.Count == Population.Count)
         {
             Evolve();
@@ -236,6 +234,9 @@ public class GeneticAlgorithm : MonoBehaviour
             offspring1.Mutate(mutationRate);
             offspring2.Mutate(mutationRate);
 
+            offspring1.FixEndPoints();
+            offspring2.FixEndPoints();
+
             newPopulation.Add(offspring1);
             newPopulation.Add(offspring2);
         }
@@ -266,6 +267,7 @@ public class GeneticAlgorithm : MonoBehaviour
         }
 
         results.Clear();
+        internalTimer = 0.0f;
     }
 
     private Genotype FittestGenotype()
@@ -310,9 +312,6 @@ public class GeneticAlgorithm : MonoBehaviour
 
             offspring1.SetRawGenotype(genotypeA);
             offspring2.SetRawGenotype(genotypeA);
-            //Fix endpoints to be the same.
-            offspring1.FixEndPoints();
-            offspring2.FixEndPoints();
         }
 
     }
