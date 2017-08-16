@@ -310,6 +310,9 @@ public class GeneticAlgorithm : MonoBehaviour
 
             offspring1.SetRawGenotype(genotypeA);
             offspring2.SetRawGenotype(genotypeA);
+            //Fix endpoints to be the same.
+            offspring1.FixEndPoints();
+            offspring2.FixEndPoints();
         }
 
     }

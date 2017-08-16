@@ -135,20 +135,31 @@ public class Genotype
                 }
             }
 
+            FixEndPoints();
+        }
+    }
+
+    public void FixEndPoints()
+    {
+        foreach (float[] splines in genotype)
+        {
             //Ensure that the beginning + end of the cyclic spline is the same as well as the initialized spline end point.
             //Set X,Y of position to same.
             splines[splines.Length / 2] = 0.0f;
-            splines[splines.Length / 2 - 4] = splineLength;
-            splines[splines.Length / 2 - 3] = splines[splines.Length / 2 + 1] = splines[splines.Length - 3];
+            splines[splines.Length / 2 - 4] = splines[splines.Length - 4] = splineLength;
+            splines[splines.Length / 2 - 3] = splines[splines.Length / 2 + 1] = splines[splines.Length - 3] = 0.0f;
 
-            Vector2 endTan = new Vector2(splines[splines.Length - 2], splines[splines.Length - 1]) - new Vector2(splines[splines.Length - 4], splines[splines.Length - 3]);
-            Vector2 initializeEndTan = new Vector2(splines[splines.Length / 2 - 4], splines[splines.Length / 2 - 3]) + endTan;
-            Vector2 cyclicEndTan = new Vector2(splines[splines.Length / 2], splines[splines.Length / 2 + 1]) + endTan;
+            Vector2 endTan = new Vector2(splines[splines.Length - 2], splines[splines.Length - 1]) -
+                             new Vector2(splines[splines.Length - 4], splines[splines.Length - 3]);
+            Vector2 initializeEndTan = new Vector2(splineLength, 0) +
+                                       endTan;
+            Vector2 cyclicBeginningTan = Vector2.zero + endTan;
             //Ensure end point of first spline and beginning + end of cyclic splines are all the same.
             splines[splines.Length / 2 - 2] = initializeEndTan.x;
             splines[splines.Length / 2 - 1] = initializeEndTan.y;
-            splines[splines.Length / 2 + 2] = cyclicEndTan.x;
-            splines[splines.Length / 2 + 3] = cyclicEndTan.y;
+            splines[splines.Length / 2 + 2] = cyclicBeginningTan.x;
+            splines[splines.Length / 2 + 3] = cyclicBeginningTan.y;
+            Debug.Log("Done");
         }
     }
 }
