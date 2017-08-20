@@ -233,8 +233,8 @@ public class GeneticAlgorithm : MonoBehaviour
             offspring1.Mutate(mutationRate);
             offspring2.Mutate(mutationRate);
 
-            //offspring1.FixEndPoints();
-            //offspring2.FixEndPoints();
+            offspring1.FixEndPoints();
+            offspring2.FixEndPoints();
 
             newPopulation.Add(offspring1);
             newPopulation.Add(offspring2);
