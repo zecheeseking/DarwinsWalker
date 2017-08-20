@@ -10,7 +10,6 @@ public class EarlyTerminate : MonoBehaviour
         if (col.gameObject.tag == "Hip")
         {
             col.gameObject.GetComponent<Phenotype>().TerminateEarly();
-            Debug.Log("Terminate " + col.gameObject.name);
         }
     }
 }

@@ -133,7 +133,6 @@ public class GeneticAlgorithm : MonoBehaviour
 
     public void SetTimeScale(Single s)
     {
-        Debug.Log("CALLED");
         Time.timeScale = s;
         timeScaleLabel.text = "Timescale: x" + Time.timeScale.ToString("F");
     }
@@ -234,8 +233,8 @@ public class GeneticAlgorithm : MonoBehaviour
             offspring1.Mutate(mutationRate);
             offspring2.Mutate(mutationRate);
 
-            offspring1.FixEndPoints();
-            offspring2.FixEndPoints();
+            //offspring1.FixEndPoints();
+            //offspring2.FixEndPoints();
 
             newPopulation.Add(offspring1);
             newPopulation.Add(offspring2);
@@ -244,7 +243,7 @@ public class GeneticAlgorithm : MonoBehaviour
         //Maintain fittest from previous population.
         newPopulation[0] = FittestGenotype();
 
-        //Lower sixth of the population is randomly generated to maintain diversity.
+        //Regenerate lower portion of the population to preserve diversity
         for (int i = newPopulation.Count - newPopulation.Count / 6; i < newPopulation.Count; i++)
         {
             newPopulation[i] = new Genotype();
@@ -311,9 +310,8 @@ public class GeneticAlgorithm : MonoBehaviour
             }
 
             offspring1.SetRawGenotype(genotypeA);
-            offspring2.SetRawGenotype(genotypeA);
+            offspring2.SetRawGenotype(genotypeB);
         }
-
     }
 
     private Genotype RouletteWheelSelection(List<Genotype> pop)

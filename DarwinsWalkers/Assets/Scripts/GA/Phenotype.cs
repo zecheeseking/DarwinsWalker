@@ -16,7 +16,11 @@ public class Phenotype : MonoBehaviour
     private bool terminate = false;
 
     private Genotype genotype = null;
-    private float fitness = 0.0f;
+    private float maxX = 0.0f;
+
+    private float internalTimer = 0.0f;
+    private float recordProgressInterval = 0.5f;
+    private List<float> recordedYHeights = new List<float>();
 
     void SetGenotype(Genotype genotype)
     {
@@ -43,18 +47,39 @@ public class Phenotype : MonoBehaviour
     // Update is called once per frame
     void Update ()
 	{
-        if(HipBone.position.x > fitness)
-	        fitness = HipBone.position.x;
+        if(HipBone.position.x > maxX)
+            maxX = HipBone.position.x;
+
+	    internalTimer += Time.deltaTime;
+
+	    if (internalTimer > recordProgressInterval)
+	    {
+	        recordedYHeights.Add(HipBone.position.y);
+	    }
 
         if (Terminate())
         {
-            //Record fitness
-            genotype.Fitness = fitness;
+            //Calculate final fitness
+            genotype.Fitness = CalculateFinalFitness();
             //Register to GA
             GeneticAlgorithm.Instance.RegisterResults(genotype);
             //Cleanup object
             Destroy(gameObject);
         }
+    }
+
+    private float CalculateFinalFitness()
+    {
+        float sumY = 0.0f;
+        foreach (float y in recordedYHeights)
+            sumY += y;
+
+        //By dividing the sum by the same number for all phenotypes, we ensure that those that terminated early do not get a great advantage 
+        //due to having less recorded data than those who lasted the entire round. 
+        sumY =  sumY / (GeneticAlgorithm.Instance.GenerationTimeLimit / recordProgressInterval);
+
+         //This exists to greatly encourage phenotypes that maintain a higher Y average.
+        return sumY * 1.7f + maxX;
     }
 
     bool Terminate()
@@ -77,7 +102,7 @@ public class Phenotype : MonoBehaviour
         if (bipedPrefab == null)
             bipedPrefab = Resources.Load<GameObject>("BipedPrefab");
 
-        GameObject phenotype = Instantiate(bipedPrefab, Vector3.up * 5.0f, Quaternion.identity);
+        GameObject phenotype = Instantiate(bipedPrefab, Vector3.up * 4.5f, Quaternion.identity);
         phenotype.name = "Phenotype";
         phenotype.AddComponent<Phenotype>();
         phenotype.GetComponent<Phenotype>().SetGenotype(genotype);

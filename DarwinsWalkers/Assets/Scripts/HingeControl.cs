@@ -50,7 +50,7 @@ public class HingeControl : MonoBehaviour
         var motor = _hinge.motor;
 
 	    if (!hasInitialized)
-            motor.motorSpeed = startSpline.SampleYCoordinate(scalar) * MaximumForce;
+            motor.motorSpeed = startSpline.SampleYCoordinate(scalar) * MaximumForce; 
 	    else
             motor.motorSpeed = cyclicSpline.SampleYCoordinate(scalar) * MaximumForce;
 
